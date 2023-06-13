@@ -48,5 +48,6 @@ inline double clamp(double x, double min, double max) {
 
 #include "ray.h"
 #include "vec3.h"
+#include <memory>
 
 #endif //RAY_TRACING_IN_ONE_WEEKEND_RTWEEKEND_H
