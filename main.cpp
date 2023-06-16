@@ -5,27 +5,18 @@
 #include "camera.h"
 #include "material.h"
 #include "moving_sphere.h"
+#include "bvh.h"
 
 #include <iostream>
 
-double hit_sphere(const point3 &center, double radius, const ray &r) {
-    vec3 oc = r.origin() - center;
-    auto a = r.direction().length_squared();
-    auto half_b = dot(oc, r.direction());
-    auto c = oc.length_squared() - radius * radius;
-    auto discriminant = half_b * half_b - a * c;
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (-half_b - sqrt(discriminant)) / a;
-    }
-}
-
-hittable_list random_scene() {
+std::shared_ptr<hittable> random_scene() {
     hittable_list world;
 
-    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+//    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+//    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+
+    auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -66,17 +57,18 @@ hittable_list random_scene() {
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
-    return world;
+//    return world;
+    return std::make_shared<bvh_node>(world, 0, 1);
 }
 
-color ray_color(const ray &r, const hittable &world, int depth) {
+color ray_color(const ray &r, std::shared_ptr<hittable> world, int depth) {
     hit_record rec;
 
     if (depth <= 0) {
         return {0, 0, 0};
     }
 
-    if (world.hit(r, 0.001, infinity, rec)) {
+    if (world->hit(r, 0.001, infinity, rec)) {
         ray scattered;
         color attenuation;
         if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))

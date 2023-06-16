@@ -5,6 +5,7 @@
 #ifndef RAY_TRACING_IN_ONE_WEEKEND_BVH_H
 #define RAY_TRACING_IN_ONE_WEEKEND_BVH_H
 
+#include <algorithm>
 #include "rtweekend.h"
 #include "hittable.h"
 #include "hittable_list.h"
